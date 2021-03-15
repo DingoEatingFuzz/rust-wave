@@ -2,18 +2,24 @@ use std::{thread, time};
 use std::collections::LinkedList;
 use std::f32;
 use rand::random;
+use clap::clap_app;
 
 fn main() {
+    let matches = clap_app!(myapp =>
+        (version: "0.2")
+        (author: "Michael Lange @DingoEatingFuzz")
+        (about: "A simple program that uses a sinusoidal amount of memory")
+        (@arg baseline: -b --baseline +takes_value default_value("1500000") "What is the middle value of the sine wave in bytes?. MUST be larger than the magnitude")
+        (@arg magnitude: -m --magnitude +takes_value default_value("1000000") "The magnitude of the sine wave in bytes. How far from the baseline are the min and max of the wave?")
+        (@arg period: -p --period +takes_value default_value("50") "The period of the sine wave in ticks (500ms). How much time to complete one wave?")
+    ).get_matches();
+
     let two_pi = f32::consts::PI * 2.0;
     let wait_duration = time::Duration::from_millis(500);
 
-    // Length of the list when wave as at 0
-    let baseline = 1500000.0;
-    // Max distance from baseline
-    let magnitude = 1000000.0;
-
-    // Number of ticks to make a full wave
-    let period = 50.0;
+    let period = matches.value_of("period").unwrap().parse::<f32>().unwrap();
+    let baseline = matches.value_of("baseline").unwrap().parse::<f32>().unwrap();
+    let magnitude = matches.value_of("magnitude").unwrap().parse::<f32>().unwrap();
 
     // Just a list used to take up memory
     let mut list: LinkedList<f32> = LinkedList::new();
